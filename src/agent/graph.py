@@ -6,10 +6,13 @@ Returns a predefined response. Replace logic and configuration as needed.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, TypedDict
+from typing import Any, Dict
 
+from langchain_core.messages import HumanMessage
+from langchain_deepseek import ChatDeepSeek
 from langgraph.graph import StateGraph
 from langgraph.runtime import Runtime
+from typing_extensions import TypedDict
 
 
 class Context(TypedDict):
@@ -38,9 +41,14 @@ async def call_model(state: State, runtime: Runtime[Context]) -> Dict[str, Any]:
 
     Can use runtime context to alter behavior.
     """
+    # 定义聊天模型
+    llm = ChatDeepSeek(model="deepseek-chat")
+
+    input_message = HumanMessage(content="我是李四")
+    response = await llm.ainvoke([input_message])
+
     return {
-        "changeme": "output from call_model. "
-        f"Configured with {runtime.context.get('my_configurable_param')}"
+        "changeme": response
     }
 
 
