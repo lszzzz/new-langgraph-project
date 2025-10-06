@@ -6,13 +6,16 @@ Returns a predefined response. Replace logic and configuration as needed.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any, Dict, Annotated
 
 from langchain_core.messages import HumanMessage
 from langchain_deepseek import ChatDeepSeek
-from langgraph.graph import StateGraph
+from langgraph.graph import StateGraph, add_messages
 from langgraph.runtime import Runtime
 from typing_extensions import TypedDict
+
+# 定义聊天模型
+llm = ChatDeepSeek(model="deepseek-chat")
 
 
 class Context(TypedDict):
@@ -25,15 +28,8 @@ class Context(TypedDict):
     my_configurable_param: str
 
 
-@dataclass
-class State:
-    """Input state for the agent.
-
-    Defines the initial structure of incoming data.
-    See: https://langchain-ai.github.io/langgraph/concepts/low_level/#state
-    """
-
-    changeme: str = "example"
+class State(TypedDict):
+    messages: Annotated[list, add_messages]
 
 
 async def call_model(state: State, runtime: Runtime[Context]) -> Dict[str, Any]:
@@ -41,15 +37,8 @@ async def call_model(state: State, runtime: Runtime[Context]) -> Dict[str, Any]:
 
     Can use runtime context to alter behavior.
     """
-    # 定义聊天模型
-    llm = ChatDeepSeek(model="deepseek-chat")
-
-    input_message = HumanMessage(content="我是李四")
-    response = await llm.ainvoke([input_message])
-
-    return {
-        "changeme": response
-    }
+    response = await llm.ainvoke(state["messages"])
+    return {"messages": [response]}
 
 
 # Define the graph
