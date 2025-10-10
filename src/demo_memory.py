@@ -17,7 +17,7 @@ llm = ChatDeepSeek(model="deepseek-chat")
 
 
 def chatbot(state: State):
-    print("chatbot state:{}".format(state))
+    # print("chatbot state:{}".format(state))
     return {"messages": [llm.invoke(state["messages"])]}
 
 
